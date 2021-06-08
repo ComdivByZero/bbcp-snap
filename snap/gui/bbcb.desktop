@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BlackBox Component Builder
+Comment=IDE and component framework for programming language Component Pascal
+Exec=bbcb
+Path=
+Icon=${SNAP}/meta/gui/blackbox.svg
+Categories=Development;
+Version=1.7
+Type=Application
+Terminal=false
+Name[ru_RU]=Блэкбокс

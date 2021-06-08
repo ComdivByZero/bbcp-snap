@@ -1,0 +1,45 @@
+diff --git a/common/init b/common/init
+index 8496036..a8fa678 100644
+--- a/common/init
++++ b/common/init
+@@ -71,6 +71,6 @@ export SNAP_LAUNCHER_ARCH_TRIPLET=$ARCH
+ # Don't LD_PRELOAD bindtextdomain for classic snaps
+ if ! grep -qs "^\s*confinement:\s*classic\s*" $SNAP/meta/snap.yaml; then
+   if [ -f $SNAP/lib/bindtextdomain.so ]; then
+-    export LD_PRELOAD=$LD_PRELOAD:$SNAP/lib/bindtextdomain.so
++    export LD_PRELOAD=$LD_PRELOAD:bindtextdomain.so
+   fi
+ fi
+diff --git a/gtk/Makefile b/gtk/Makefile
+index 3acbb4c..806b3f6 100644
+--- a/gtk/Makefile
++++ b/gtk/Makefile
+@@ -2,6 +2,9 @@
+ 
+ FLAVOR ?= gtk3
+ SRC_DIR ?= .
++CFLAGS ?=
++LIB_DIR ?=lib
++CODE_AFTER_INIT=
+ 
+ DEST_LAUNCHER = desktop-launch
+ FLAVOR_FILE = flavor-select
+@@ -17,14 +20,15 @@ clean:
+ $(DEST_LAUNCHER):
+ 	@echo "#!/bin/bash" > $(DEST_LAUNCHER)
+ 	@cat $(SRC_DIR)/init >> $(DEST_LAUNCHER)
++	@echo '$(CODE_AFTER_INIT)' >> $(DEST_LAUNCHER)
+ 	@cat $(SRC_DIR)/runtime-exports >> $(DEST_LAUNCHER)
+ 	@cat $(SRC_DIR)/desktop-exports >> $(DEST_LAUNCHER)
+ 	@cat $(SRC_DIR)/launcher-specific >> $(DEST_LAUNCHER)
+ 	@cat $(SRC_DIR)/mark-and-exec >> $(DEST_LAUNCHER)
+ 	@echo "USE_$(FLAVOR)=true" >> $(FLAVOR_FILE)
+-	gcc -Wall -O2 -o $(BINDTEXTDOMAIN) -fPIC -shared $(SRC_DIR)/../src/bindtextdomain.c -ldl
+-		
++	gcc -Wall -O2 -o $(BINDTEXTDOMAIN) -fPIC -shared $(SRC_DIR)/../src/bindtextdomain.c -ldl $(CFLAGS)
++
+ install: $(DEST_LAUNCHER)
+ 	install -D -m755 $(DEST_LAUNCHER) "$(DESTDIR)"/bin/$(DEST_LAUNCHER)
+ 	install -D -m644 $(FLAVOR_FILE) "$(DESTDIR)"/
+-	install -D -m644 $(BINDTEXTDOMAIN) "$(DESTDIR)"/lib/$(BINDTEXTDOMAIN)
++	install -D -m644 $(BINDTEXTDOMAIN) "$(DESTDIR)"/$(LIB_DIR)/
