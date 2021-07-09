@@ -80,7 +80,7 @@ parts:
         KEY="$1" VALUE="$2" ./runc
       }
       subst appVersion "`cat ../../dev/AppVersion.txt`"
-      subst buildNum 6
+      subst buildNum 7
       subst buildDate "`date +%Y-%m-%d`"
       cd ../../BlackBox
       ./switch-target none         && ./clean
