@@ -1,5 +1,5 @@
 diff --git a/BlackBox/run-BlackBox b/BlackBox/run-BlackBox
-index 3f94cf5..e7ec93f 100755
+index 3f94cf5..8ff7535 100755
 --- a/BlackBox/run-BlackBox
 +++ b/BlackBox/run-BlackBox
 @@ -5,7 +5,7 @@
@@ -7,17 +7,26 @@ index 3f94cf5..e7ec93f 100755
  rn=`readlink -f "${0}"`
  standardDir=`dirname "${rn}"`
 -useDir=`readlink -f .`
-+useDir="$SNAP_USER_COMMON"
++useDir="$SNAP_REAL_HOME/blackbox"
  
  exe="blackbox"
  
-@@ -14,6 +14,11 @@ unset UBUNTU_MENUPROXY
+@@ -14,6 +14,20 @@ unset UBUNTU_MENUPROXY
  unset GTK_MODULES
  export LIBOVERLAY_SCROLLBAR=0
  
-+if [ ! -f $SNAP_USER_DATA/inited ]; then
-+	touch $SNAP_USER_DATA/inited
++if [ -f $SNAP_USER_DATA/workdir ]; then
++	useDir=`cat $SNAP_USER_DATA/workdir`
++else
 +	notify-send "BlackBox WARNING" "First loading may be too slow"
++
++	echo "$useDir" > $SNAP_USER_DATA/workdir
++	mkdir -p "$useDir"
++	ln -s `realpath $SNAP/..`/current/usr/lib/blackbox "$useDir"/blackbox-core
++fi
++
++if [ "$PWD" = "$SNAP_REAL_HOME" ]; then
++  cd "$useDir"
 +fi
 +
  # export LD_DEBUG=all

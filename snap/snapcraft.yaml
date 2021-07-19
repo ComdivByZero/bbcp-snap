@@ -109,7 +109,7 @@ parts:
 
 apps:
   bbcb:
-    command: desktop-launch $SNAP/usr/lib/blackbox/run-BlackBox
+    command: bin/desktop-launch $SNAP/usr/lib/blackbox/run-BlackBox
     environment:
       LC_ALL: "C.UTF-8"
       DISABLE_WAYLAND: 1
