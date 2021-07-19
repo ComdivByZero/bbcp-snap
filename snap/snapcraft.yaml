@@ -1,7 +1,7 @@
 name: bbcb
 title: BlackBox IDE
 base: core18
-version: '1.8~b1'
+adopt-info: blackbox
 license: BSD-2-Clause
 icon: snap/gui/blackbox.svg
 summary: BlackBox Component Builder - Component Pascal IDE
@@ -71,6 +71,8 @@ parts:
       cp -r $HOME/parts/i386/build/snap/local/System BlackBox/
     plugin: nil
     override-build: |
+      VERSION="`cat dev/AppVersion.txt | tr '\r\n' '\n'`"
+      snapcraftctl set-version "$VERSION"
       cd BlackBox
       ./switch-target Linux Interp && ./build && ./export ../Linux_Interp || true
       cd ../examples/append
@@ -79,7 +81,7 @@ parts:
         FILEPATH="../../BlackBox/System/Rsrc" FILENAME='Strings.odc' \
         KEY="$1" VALUE="$2" ./runc
       }
-      subst appVersion "`cat ../../dev/AppVersion.txt`"
+      subst appVersion "$VERSION"
       subst buildNum 7
       subst buildDate "`date +%Y-%m-%d`"
       cd ../../BlackBox
