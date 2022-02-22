@@ -66,6 +66,7 @@ parts:
   blackbox:
     after: [desktop-gtk2]
     source: https://github.com/bbcb/bbcp.git
+    source-depth: 1
     override-pull: |
       snapcraftctl pull
       git apply $SNAPCRAFT_PROJECT_DIR/snap/local/blackbox.patch
@@ -83,7 +84,7 @@ parts:
         KEY="$1" VALUE="$2" ./runc
       }
       subst appVersion "$VERSION"
-      subst buildNum 8
+      subst buildNum 10
       subst buildDate "`date +%Y-%m-%d`"
       cd ../../BlackBox
       ./switch-target none         && ./clean
@@ -98,32 +99,81 @@ parts:
       - -usr/bin/update-mime-database
       - -usr/share/doc/shared-mime-info/shared-mime-info-spec.pdf
 
+  blackbox2:
+    after: [desktop-gtk2]
+    source: https://github.com/bbcb/bbcp.git
+    source-type: git
+    source-depth: 1
+    source-branch: blackbox20
+    override-pull: |
+      snapcraftctl pull
+      git apply $SNAPCRAFT_PROJECT_DIR/snap/local/blackbox2.patch
+      cp -r $SNAPCRAFT_PROJECT_DIR/snap/local/Std ./
+    plugin: nil
+    override-build: |
+      VERSION="`cat version.txt | tr '\r\n' '\n'`"
+      snapcraftctl set-version "$VERSION"
+      ./build-linux
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox2
+      cp -r Comm Cons Dev Docu Form Lin Obx Std System Text blackbox LICENSE.txt run-BlackBox $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox2
+    build-packages:
+      - pax
+      - libgtk2.0-dev
+    stage-packages:
+      - libnotify-bin
+    stage:
+      - -usr/bin/update-mime-database
+      - -usr/share/doc/shared-mime-info/shared-mime-info-spec.pdf
+
   russian:
     source: https://github.com/bbcb/russian.git
     plugin: nil
     override-build: |
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox
-      cp -r * $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/
-      cd $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox
-      rm README links.sh make-deb.sh Dev/Docu/ru/P-S-I.odc
+      copyTo() {
+        mkdir -p $1
+        cp -r * $1/
+        CURD=$PWD && cd $1 &&
+        rm README make-deb.sh Dev/Docu/ru/P-S-I.odc
+        cd $CURD
+      }
+      copyTo $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox
+      copyTo $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox2
 
   locales:
-    source: http://www.zinnamturm.eu/pac/BlackBox-2007-core.7z
+    source: http://www.zinnamturm.eu/pac/BlackBox-2201-core.7z
     plugin: nil
     override-build: |
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox
+      copyTo() {
+        mkdir -p $2
+        cp -r $1/* $2
+      }
       for D in */Rsrc/??; do
         if [ $(basename $D) != ru ]; then
-          mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/$D
-          cp $D/* $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/$D/
+          copyTo $D $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/$D/
         fi
       done
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/Docu
-      cp -r Docu/nl $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/Docu/
+      copyTo Docu/nl $SNAPCRAFT_PART_INSTALL/usr/lib/blackbox/
 
 apps:
   bbcb:
     command: bin/desktop-launch $SNAP/usr/lib/blackbox/run-BlackBox
+    environment:
+      LC_ALL: "C.UTF-8"
+      DISABLE_WAYLAND: 1
+    plugs:
+      - home
+      - cups-control
+      - desktop
+      - desktop-legacy
+      - x11
+      - unity7
+      - network
+      - gsettings
+      - mount-observe
+      - network-control
+  "2":
+    command: bin/desktop-launch $SNAP/usr/lib/blackbox2/run-BlackBox
+    desktop: $SNAPCRAFT_PROJECT_DIR/snap/gui/bbcb2.desktop
     environment:
       LC_ALL: "C.UTF-8"
       DISABLE_WAYLAND: 1

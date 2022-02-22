@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=BlackBox Component Builder 2
+Comment=IDE and component framework for programming language Component Pascal
+Exec=bbcb.2
+Path=${SNAP_USER_COMMON}
+Icon=${SNAP}/meta/gui/blackbox2.svg
+Categories=Development;
+Version=2.0
+Type=Application
+Terminal=false
+Name[ru_RU]=Блэкбокс 2
+Comment[ru_RU]=IDE и компонентный фрэймворк для языка программирования Компонентный Паскаль
